@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title>
+        Your Account
+    </title>
+    <link href="/style/styles.css" rel="stylesheet" type="text/css" >
+    <meta charset = "utf-8">
+
+    <script>
+        function sendData() {
+            let data = {
+                "name": $('#name').val(),
+            }
+            $.ajax({
+                url: '/show',
+                type: 'POST',
+                data: JSON.stringify(data),
+                contentType: "application/javascript; charset=utf-8",
+                dataType: "json",
+                success : function(data) {
+                    $('#brd').append("<h>"+ data.name +"</h>");
+                },
+            });
+            console.log(data)
+        }
+    </script>
+</head>
+<body>
+
+<h>Welcome to account {{.Username}}</h><br>
+<h>Your email is {{.Email}}</h><br>
+<div>
+
+</div>
+    <div>
+
+        <input type="text" id="name">
+        <button onclick="sendData()">ShowData</button>
+
+    </div>
+
+    <div id="brd">
+
+    </div>
+</body>
+</html>
