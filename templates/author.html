@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title>
+        Your Account
+    </title>
+    <link href="/style/styles.css" rel="stylesheet" type="text/css" >
+    <meta charset = "utf-8">
+
+    <script>
+        $(document).ready(function (){
+            alert("page loadet")
+        })
+
+        let isvisible = 0
+        function sendData() {
+            let data = {
+                "title":$('#title').val(),
+                "name": $('#name').val(),
+                "type":$('#type').val(),
+                "price":$('#price').val(),
+                "description":$('#description').val(),
+                "email":$('#email').val(),
+                "phone_number":$('#phone_number').val(),
+                "start_dates":$('#start_dates').val(),
+            }
+            $.ajax({
+                url: '/author/addannouncement',
+                type: 'POST',
+                data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success : function(data) {
+                    $('#lines').append("<div>Title"+data.title+"</div><br>"+"<div>Name"+data.name+"</div><br>")
+                },
+            });
+            console.log(data)
+        }
+        function ShowInputLines(){
+            let data = {
+            "status":"author",
+            }
+            $.ajax({
+                url: '/data/show',
+                type: 'POST',
+                data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success : function() {
+                    $('#lines').append("<button onclick='sendData()'>Save</button>"+"<input type='text' id='title'>title<br>\n    <input type='text' id='name'>name<br>\n    <input type='text' id='type'>type<br>\n    <input type='text' id='price'>price<br>\n    <input type='text' id='description'>description<br>\n    <input type='text' id='email'>email<br>\n    <input type='text' id='phone_number'>phone_number<br>\n    <input type='text' id='start_dates'>start_dates<br>");
+                },
+            });
+            console.log(data)
+        }
+    </script>
+</head>
+<body>
+<div>
+    <button onclick="ShowInputLines()">Add Announcement</button>
+<div id="lines"></div>
+</div>
+</body>
+</html>

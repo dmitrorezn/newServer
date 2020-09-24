@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,36 +10,66 @@
     <meta charset = "utf-8">
 
     <script>
+        $(document).ready(function (){
+                alert("hd");
+                $.get( "/user/announcements", function(data) {
+                    alert(data[0].title)
+                    $('#ann').empty()
+                    $.each(data, function(k)  {
+                        $("#ann").append("<div><tr><td>"+data[k].title+"<br/><td>"+data[k].action.description+"<td><br/></tr></div>");
+                    });
+                    console.log(data);
+                });
+        });
         function sendData() {
             let data = {
                 "name": $('#name').val(),
             }
             $.ajax({
-                url: '/show',
+                url: '/data/show',
+                type: 'POST',
+                data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success : function(data) {
+                    $('#brd').append("<div>"+ data.name +"</div>");
+                },
+            });
+            console.log(data)
+        }
+        function regAsAuthor(){
+            let data = {
+                "status": "author",
+            }
+            $.ajax({
+                url: '/author/signin',
                 type: 'POST',
                 data: JSON.stringify(data),
                 contentType: "application/javascript; charset=utf-8",
                 dataType: "json",
                 success : function(data) {
-                    $('#brd').append("<h>"+ data.name +"</h>");
+                    $('#brd').append("<div>"+ data.name +"</div>");
                 },
             });
-            console.log(data)
+
         }
     </script>
 </head>
 <body>
-
 <h>Welcome to account {{.Username}}</h><br>
 <h>Your email is {{.Email}}</h><br>
-<div>
-
+<div id="ann">
+{{/*{{range .announcements}}*/}}
+{{/*    <h>{{.title}}</h><br>*/}}
+{{/*    <h>{{.email}}</h><br>*/}}
+{{/*    <h>{{.phone_number}}</h><br>*/}}
+{{/*{{end}}*/}}
 </div>
     <div>
 
         <input type="text" id="name">
         <button onclick="sendData()">ShowData</button>
-
+{{/*        <button onclick="regAsAuthor()">ShowData</button>*/}}
     </div>
 
     <div id="brd">
