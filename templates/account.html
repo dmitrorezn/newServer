@@ -11,16 +11,15 @@
 
     <script>
         $(document).ready(function (){
-                alert("hd");
-                $.get( "/user/announcements", function(data) {
-                    alert(data[0].title)
+                $.get( "/data/announcements", function(data) {
                     $('#ann').empty()
                     $.each(data, function(k)  {
-                        $("#ann").append("<div><tr><td>"+data[k].title+"<br/><td>"+data[k].action.description+"<td><br/></tr></div>");
+                        $("#ann").append("<h>"+data[k].title+"</h></br><tr><td class='ann1'>"+data[k].phone_number+"<br/><td class='ann1'><br/>"+data[k].activity.name+"<td class='ann1'><br/><td><br/>"+data[k].email+"<td><br/></tr>");
+                        alert(data[k].title)
                     });
                     console.log(data);
                 });
-        });
+        })
         function sendData() {
             let data = {
                 "name": $('#name').val(),
@@ -55,21 +54,21 @@
         }
     </script>
 </head>
-<body>
+<body background-color="blue">
 <h>Welcome to account {{.Username}}</h><br>
 <h>Your email is {{.Email}}</h><br>
-<div id="ann">
+<div id = "ann">
 {{/*{{range .announcements}}*/}}
 {{/*    <h>{{.title}}</h><br>*/}}
 {{/*    <h>{{.email}}</h><br>*/}}
 {{/*    <h>{{.phone_number}}</h><br>*/}}
 {{/*{{end}}*/}}
 </div>
-    <div>
+    <div class="ann1">
 
         <input type="text" id="name">
         <button onclick="sendData()">ShowData</button>
-{{/*        <button onclick="regAsAuthor()">ShowData</button>*/}}
+        <button onclick="regAsAuthor()">Reg As author</button>
     </div>
 
     <div id="brd">

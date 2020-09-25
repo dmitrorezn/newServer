@@ -3,6 +3,7 @@ package main
 import (
 	"ProjectMongoClient"
 	classes "activities"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -35,7 +36,7 @@ func main() {
 	defer session.Close()
 
 	router := gin.Default()
-	router.LoadHTMLGlob("templates/*")
+	router.LoadHTMLGlob("./templates/*")
 	router.Static("./style","./templates")
 	err = RouterGroupsInit(router)
 	if err != nil{
@@ -49,13 +50,18 @@ func RouterGroupsInit(router *gin.Engine) error{
 	data := router.Group("/data")
 	{
 		data.POST("/show", Show)
+		data.GET("/announcements", Announcements)
+		data.POST("/announcements", Announcements)
 	}
 	auth := router.Group("/auth")
 	{
 		//auth.Use(CheckUserStatus)
 		auth.GET("/regform",RegForm)
 		auth.GET("/signform",SignForm)
-
+		auth.GET("/signin",SignIn)
+		auth.POST("/signin",SignIn)
+		auth.GET("/signup",SignUp)
+		auth.POST("/signup",SignUp)
 	}
 
 
@@ -63,10 +69,7 @@ func RouterGroupsInit(router *gin.Engine) error{
 	user := router.Group("/user")
 	{
 		user.Use(CheckUserTokenValidation)
-		user.GET("/signin",SignIn)
-		user.POST("/signin",SignIn)
-		user.GET("/signup",SignUp)
-		user.POST("/signup",SignUp)
+
 		user.GET("/account",Account)
 		user.GET("/trash",Trash)
 		user.GET("/announcements",Announcements)
@@ -100,7 +103,7 @@ func AuthorPage(c *gin.Context)  {
 }
 func Account(c *gin.Context)  {
 	var selector map[string]interface{}
-	announcements,err := session.Read(selector,"announcements")
+	announcements,err := session.ReadAnnouncements(selector)
     if err != nil{
     	fmt.Println(err.Error())
     	c.String(400,err.Error())
@@ -248,7 +251,6 @@ func SignUp(context *gin.Context) {
 
 func Trash(c *gin.Context)  {
 	var selector = make(map[string]interface{})
-	var orders []interface{}
 	var err error
 	login, err := c.Cookie("email")
 	if err!=nil{
@@ -257,9 +259,7 @@ func Trash(c *gin.Context)  {
 		return
 	}
 	selector["user_login"] = login
-	orders, err = session.Read(selector,"announcements")
-	order := orders[0].(classes.Order)
-
+	order, err := session.ReadOrder(selector)
 	if err != nil {
 		fmt.Println(err.Error())
 		c.String(400, err.Error())
@@ -270,18 +270,19 @@ func Trash(c *gin.Context)  {
 
 func Announcements(c *gin.Context)  {
 	var selector = make(map[string]interface{})
-	var announcements  = make([]classes.Announcement,1)
-	data, err := session.Read(selector,"announcements")
-	fmt.Println(data)
-
-	fmt.Println("hd",announcements)
+	//var announcements  []classes.Announcement
+	//var err error
+	announcements, err := session.ReadAnnouncements(selector)
 	if err != nil {
-		fmt.Errorf(err.Error())
+		fmt.Println(err.Error())
 		c.String(400, err.Error())
 		return
 	}
-	c.String(200,announcements[0].Title)
+	out,_ :=json.MarshalIndent(announcements,"  ","   ")
+    fmt.Println(announcements[0].Title)
+	fmt.Println(string(out))
 	c.JSON(200,announcements)
+
 }
 
 func AddAnnouncement(c *gin.Context)  {
@@ -291,7 +292,6 @@ func AddAnnouncement(c *gin.Context)  {
      	fmt.Println(err.Error())
      	return
 	 }
-
 	 login ,err := c.Cookie("login")
 	 if err!= nil{
 	  	fmt.Println(err.Error())
@@ -302,11 +302,17 @@ func AddAnnouncement(c *gin.Context)  {
 	 	fmt.Println(err.Error())
 		return
 	 }
+	 title ,ok :=data["title"]
+	 if !ok{
+	 	fmt.Println("err no title")
+		 return
+	 }
+
 	 id := primitive.NewObjectID()
      announcement := classes.Announcement{
      	ID: id,
      	IDString: id.String(),
-     	Title: data["title"],
+     	Title: title,
      	AuthorLogin: login,
      	StartWeekDays: strings.Split(data["start_days"]," "),
      	PhoneNumber: data["phone_number"],

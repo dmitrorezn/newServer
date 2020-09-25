@@ -1,6 +1,14 @@
 body{
-    background: azure;
+    background-color: grey;
 }
 div{
+    margin-left: 200px;
     margin-top: 20px;
+    background-color: aquamarine;
+}
+
+.ann1{
+    margin-left: 200px;
+    margin-top: 20px;
+    background-color: blue;
 }
