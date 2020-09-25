@@ -1,5 +1,5 @@
 body{
-    background-color: grey;
+    background-color: darkslategray;
 }
 div{
     margin-left: 200px;
@@ -10,5 +10,7 @@ div{
 .ann1{
     margin-left: 200px;
     margin-top: 20px;
-    background-color: blue;
+    background-color:bisque;
+    border: 6px solid #7922CC;
+    border-radius: 25px;
 }

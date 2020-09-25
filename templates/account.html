@@ -2,20 +2,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link href="/style/styles.css" rel="stylesheet" type="text/css" >
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <title>
         Your Account
     </title>
-    <link href="/style/styles.css" rel="stylesheet" type="text/css" >
     <meta charset = "utf-8">
 
     <script>
         $(document).ready(function (){
                 $.get( "/data/announcements", function(data) {
+                    alert(data[9].title)
                     $('#ann').empty()
                     $.each(data, function(k)  {
-                        $("#ann").append("<h>"+data[k].title+"</h></br><tr><td class='ann1'>"+data[k].phone_number+"<br/><td class='ann1'><br/>"+data[k].activity.name+"<td class='ann1'><br/><td><br/>"+data[k].email+"<td><br/></tr>");
-                        alert(data[k].title)
+                        $("#ann").append("<div class='ann1'><h>Number: </h>"+data[k].phone_number+"</div><div class='ann1'>"+data[k].activity.name+"<div class='ann1'>"+data[k].email+"</div>");
+
                     });
                     console.log(data);
                 });
@@ -57,14 +58,14 @@
 <body background-color="blue">
 <h>Welcome to account {{.Username}}</h><br>
 <h>Your email is {{.Email}}</h><br>
-<div id = "ann">
+<div class = "ann1" id="ann">
 {{/*{{range .announcements}}*/}}
 {{/*    <h>{{.title}}</h><br>*/}}
 {{/*    <h>{{.email}}</h><br>*/}}
 {{/*    <h>{{.phone_number}}</h><br>*/}}
 {{/*{{end}}*/}}
 </div>
-    <div class="ann1">
+    <div>
 
         <input type="text" id="name">
         <button onclick="sendData()">ShowData</button>
