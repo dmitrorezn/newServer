@@ -12,7 +12,6 @@
         $(document).ready(function (){
             alert("page loadet")
         })
-
         let isvisible = 0
         function sendData() {
             let data = {
@@ -48,7 +47,7 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success : function() {
-                    $('#lines').append("<button onclick='sendData()'>Save</button>"+"<input type='text' id='title'>title<br>\n    <input type='text' id='name'>name<br>\n    <input type='text' id='type'>type<br>\n    <input type='text' id='price'>price<br>\n    <input type='text' id='description'>description<br>\n    <input type='text' id='email'>email<br>\n    <input type='text' id='phone_number'>phone_number<br>\n    <input type='text' id='start_dates'>start_dates<br>");
+                    $('#lines').append("<button onclick='sendData()'>Save</button>"+"<input type='text' name='title'>title<br>\n    <input type='text' name='name'>name<br>\n    <input type='text' name='type'>type<br>\n    <input type='text' name='price'>price<br>\n    <input type='text' name='description'>description<br>\n    <input type='text' name='email'>email<br>\n    <input type='text' name='phone_number'>phone_number<br>\n    <input type='text' name='start_dates'>start_dates<br>");
                 },
             });
             console.log(data)

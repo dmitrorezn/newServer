@@ -6,10 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	cors "github.com/rs/cors/wrapper/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"strconv"
 	"strings"
+	//"unicode"
 
 	//"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
@@ -17,27 +19,30 @@ import (
 
 var session *ProjectMongoClient.DBSession
 
-func main() {
-
-
-
+func StartDB() error  {
 	var err error
 	tablesMap := make(map[string]string)
 	tablesMap["user"] ="userstable"
 	tablesMap["activities"] = "activitiestable"
 	tablesMap["orders"] = "orderstable"
 	tablesMap["announcements"] = "announcementstable"
-
+    tablesMap["coments"] = "comentstable"
 	session, err = ProjectMongoClient.NewSession("toursdb",tablesMap)
+	if err != nil{
+		return err
+	}
+	return nil
+}
+
+func main() {
+	err := StartDB()
 	if err != nil{
 		fmt.Println(err.Error())
 		return
 	}
 	defer session.Close()
-
 	router := gin.Default()
-	router.LoadHTMLGlob("./templates/*")
-	router.Static("./style","./templates")
+
 	err = RouterGroupsInit(router)
 	if err != nil{
 		panic(err)
@@ -47,6 +52,13 @@ func main() {
 
 func RouterGroupsInit(router *gin.Engine) error{
 
+	//router.LoadHTMLGlob("./js_codes/*")
+
+	//router.LoadHTMLGlob("./css_styles/*")
+	router.LoadHTMLGlob("./templates/*")
+	router.Static("./style","C:/Users/dmitr/go/src/newServer/css_style")
+	//router.Static("./scripts","C:/Users/dmitr/go/src/newServer/js_codes")
+	router.Use(cors.Default())
 	data := router.Group("/data")
 	{
 		data.POST("/show", Show)
@@ -56,12 +68,14 @@ func RouterGroupsInit(router *gin.Engine) error{
 	auth := router.Group("/auth")
 	{
 		//auth.Use(CheckUserStatus)
+		auth.GET("/announcementinfo",AnnouncementInfo)
+		auth.POST("/announcementinfo",AnnouncementInfo)
 		auth.GET("/regform",RegForm)
 		auth.GET("/signform",SignForm)
-		auth.GET("/signin",SignIn)
-		auth.POST("/signin",SignIn)
 		auth.GET("/signup",SignUp)
 		auth.POST("/signup",SignUp)
+		auth.GET("/signin",SignIn)
+		auth.POST("/signin",SignIn)
 	}
 
 
@@ -73,6 +87,7 @@ func RouterGroupsInit(router *gin.Engine) error{
 		user.GET("/account",Account)
 		user.GET("/trash",Trash)
 		user.GET("/announcements",Announcements)
+
 	}
 	author := router.Group("/author")
 	{
@@ -92,10 +107,10 @@ func RouterGroupsInit(router *gin.Engine) error{
 }
 
 func RegForm(c *gin.Context)  {
-	c.HTML(http.StatusOK, "registration.html", nil)
+	c.HTML(http.StatusOK, "signup.html", nil)
 }
 func SignForm(c *gin.Context)  {
-	c.HTML(http.StatusOK, "signup.html", nil)
+	c.HTML(http.StatusOK, "signin.html", nil)
 }
 
 func AuthorPage(c *gin.Context)  {
@@ -138,60 +153,29 @@ func CheckUserTokenValidation(c *gin.Context) {
 }
 
 //middleware token authorisation for user
-func CheckUserStatus(c *gin.Context) {
-	status, err := c.Cookie("status")
-	if err!=nil {
-		c.HTML(200, "signin.html", gin.H{
-			"title": "authorisation",
-			"status":status,
-		})
-		return
-	}
-	return
-}
+//func CheckUserStatus(c *gin.Context) {
+//	status, err := c.Cookie("status")
+//	if err!=nil {
+//		c.HTML(200, "signin.html", gin.H{
+//			"title": "authorisation",
+//		})
+//		return
+//	}
+//	if status == "user"{
+//
+//		return
+//	}
+//	if status == "author"{
+//		return
+//	}
+//	if status =="admin"{
+//		return
+//	}
+//	return
+//}
 
-func SignIn(context *gin.Context) {
-	contentType := context.GetHeader("content-type")
-	if contentType == "application/json" {
-		mymap := make(map[string]string)
-		err := context.BindJSON(&mymap)
-		if err != nil {
-			fmt.Println(err.Error())
-			return
-		}
-		if login, ok := mymap["login"]; ok {
-			if password, ok := mymap["password"]; ok {
-				if email, ok := mymap["email"]; ok {
-					user, err := session.CheckUserInDB(login, email, password,"user")
-					if err != nil {
-						fmt.Println(err.Error())
-						context.String(http.StatusNoContent, "user already exists", err.Error())
-						return
-					}
-					err = session.Insert(user,"users")
-					if err != nil {
-						fmt.Println(err.Error())
-						context.String(http.StatusInternalServerError, "err user add ", err.Error())
-						return
-					}
-					fmt.Println("Sucsesfully added User ", login, "email: ", user.Email)
-					context.String(http.StatusOK, "Sucsesfully added User", login)
-					return
-				} else {
-					context.String(http.StatusAccepted, "no email info")
-					return
-				}
-			} else {
-				context.String(http.StatusAccepted, "no password info")
-				return
-			}
-		} else {
-			context.String(http.StatusAccepted, "no login info")
-			return
-		}
-		context.String(http.StatusNoContent, "sth wrong")
-		return
-	} else {
+func SignUp(context *gin.Context) {
+
 		login := context.PostForm("login")
 		password := context.PostForm("password")
 		email := context.PostForm("email")
@@ -211,15 +195,14 @@ func SignIn(context *gin.Context) {
 				return
 			}
 			fmt.Println("Sucsesfully added User ", login, "id ", user.ID)
-			context.HTML(200,"signup.html",user)
+			context.HTML(200,"signin.html",user)
 		} else {
 			fmt.Println("no password or login or email info")
 		}
-	}
 	return
 }
 
-func SignUp(context *gin.Context) {
+func SignIn(context *gin.Context) {
 
 		login,ok1:= context.GetPostForm("login")
 		password,ok2:= context.GetPostForm("password")
@@ -235,12 +218,31 @@ func SignUp(context *gin.Context) {
 			tokenstring := user.GetToken()
 			context.SetCookie("token", tokenstring, 5*60, "/", "localhost", false, false)
 			context.SetCookie("login", user.Username, 5*60, "/", "localhost", false, false)
-			context.SetCookie("status", "user", 5*60, "/", "localhost", false, false)
+			context.SetCookie("status", user.Status, 5*60, "/", "localhost", false, false)
 			//return HTML
-			context.HTML(http.StatusOK, "account.html", bson.M{
+			if user.Status == "user"{
+			context.HTML(http.StatusOK, "userAccount.html", bson.M{
 				"Username":user.Username,
 				"Email":user.Email,
 			})
+				return
+			}
+			if user.Status == "author"{
+				context.HTML(http.StatusOK, "authorAccount.html", bson.M{
+					"Username":user.Username,
+					"Email":user.Email,
+				})
+				return
+			}
+			if user.Status == "admin"{
+				context.HTML(http.StatusOK, "adminPage.html", bson.M{
+					"Username":user.Username,
+					"Email":user.Email,
+				})
+				return
+			}else {
+				context.String(400,"No status info for user "+user.Username)
+			}
 			return
 		} else {
 			fmt.Println("no password or email")
@@ -265,7 +267,7 @@ func Trash(c *gin.Context)  {
 		c.String(400, err.Error())
 		return
 	}
-	c.JSON(200,order.OrderList)
+	c.JSON(200,order.ActivityList)
 }
 
 func Announcements(c *gin.Context)  {
@@ -314,6 +316,7 @@ func AddAnnouncement(c *gin.Context)  {
      	IDString: id.String(),
      	Title: title,
      	AuthorLogin: login,
+     	Email: data["email"],
      	StartWeekDays: strings.Split(data["start_days"]," "),
      	PhoneNumber: data["phone_number"],
      	Activity:classes.Activity{
@@ -331,5 +334,74 @@ func AddAnnouncement(c *gin.Context)  {
 	 }
      fmt.Println(announcement)
 }
+func AnnouncementInfo(c *gin.Context)  {
+	fmt.Println("info")
+	idData := struct {
+		id string `json:"id"`
+	}{}
+    err := c.BindJSON(&idData)
+    if err !=nil{
+    	fmt.Println(err.Error())
+    	c.String(400,err.Error())
+		return
+	}
+    fmt.Println(idData.id)
+    selector := make(map[string]interface{})
+    selector["_idstr"]=idData.id
+    data,err := session.ReadAnnouncements(selector)
+    if err !=nil || data == nil || len(data) < 1{
+    	fmt.Println(err.Error())
+    	c.String(400,err.Error())
+		return
+	}else {
+		fmt.Println(data[0])
+		c.HTML(200,"anninfo.html",data[0])
+		return
+	}
+}
+func AddComment(c *gin.Context)  {
+     var comment classes.Comment
+     err := c.BindJSON(&comment)
+     if err !=nil{
+     	fmt.Println(err.Error())
+     	c.String(400,err.Error())
+		 return
+	 }
+	 err = session.Insert(comment,"coments")
+     if err != nil{
+		 fmt.Println(err.Error())
+		 c.String(400,err.Error())
+		 return
+	 }
+	 return
+}
+
+func AddToOrder(c *gin.Context)  {
+	selector := make(map[string]interface{})
+	var act classes.Activity
+	login,err := c.Cookie("login")
+	if err != nil{
+		fmt.Println(err.Error())
+		c.String(400,err.Error())
+		return
+	}
+	selector["user_login"] = login
+	err = c.BindJSON(&act)
+	if err != nil{
+		fmt.Println(err.Error())
+		c.String(400,err.Error())
+		return
+	}
+	order, err := session.ReadOrder(selector)
+	if err != nil{
+		fmt.Println(err.Error())
+		c.String(400,err.Error())
+		return
+	}
+	actList := order.ActivityList
+	//actList = append(actList,act)
+fmt.Println(actList)
+}
+
 
 

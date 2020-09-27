@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+{{/*    <link href="http://localhost:8080/style/styles.css" rel="stylesheet" type="text/css" >*/}}
+{{/*    <script src="http://localhost:8080/scripts/js_scripts"></script>*/}}
+{{/*    <script src="http://localhost:8080/scripts/jquery-3.2.1.min"></script>*/}}
+    <title>
+        Your Account
+    </title>
+    <meta charset = "utf-8">
+
+    <script>
+        function moreInfo(ids){
+            alert(ids)
+            var data = {
+                id: ids ,
+            }
+            console.log(data)
+            $.ajax({
+                url: "/auth/announcementinfo",
+                method: "POST",
+                data : JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success : function(data) {
+                    alert(data.id)
+                },
+                error:function(data) {
+                    alert(data.id)
+                },
+            })
+        };
+
+        let id
+        $(document).ready(function (){
+
+                $.get( "/data/announcements", function(data) {
+                    $('.anns').empty()
+                    $.each(data, function(k)  {
+                        id = data[k].idstr
+                        $(".anns").append("<div classs='ann'>"
+                            +"<h>Title:            </h>"+data[k].title+"<br>"
+                            +"<h>Contact number:   </h>"+data[k].phone_number+"<br>"
+                            +"<h>Activity:         </h>"+data[k].activity.name+"<br>"
+                            +"<h>Q&A Email:        </h>"+data[k].email+"<br>"
+                            +"<h>Start Dates:      </h>"+data[k].start_dates + "<br>"
+                            +"<input type='button' value='More Info' class ='info' onclick=moreInfo('"+id+"')></div>");
+                    });
+                    // $('.info').on('click', function() {
+                    //     alert("info cliced")
+                    //     id = $(this).attr("id")
+                    //     alert(id)
+                    //     $('#idstr').attr("value",id.toString())
+                    //     $.get( "/auth/announcementinfo/"+id.toString(), function( data ) {
+                    //         alert( "Load was performed." );
+                    //         $( ".result" ).html( data );
+                    //         alert( "Load was performed." );
+                    //     });
+                    // });
+                    console.log(data);
+                });
+        })
+
+
+        function sendData() {
+            let data = {
+                "name": $('#name').val(),
+            }
+            $.ajax({
+                url: '/data/show',
+                type: 'POST',
+                data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success : function(data) {
+                    $('#brd').append("<div>"+ data.name +"</div>");
+                },
+            });
+            console.log(data)
+        }
+        // function regAsAuthor() {
+        //     let data = {
+        //         "status": "author",
+        //     }
+        //     $.ajax({
+        //         url: '/author/signin',
+        //         type: 'POST',
+        //         data: JSON.stringify(data),
+        //         contentType: "application/javascript; charset=utf-8",
+        //         dataType: "json",
+        //         success: function (data) {
+        //             $('#brd').append("<div>" + data.name + "</div>");
+        //         },
+        //     });
+        // }
+    </script>
+</head>
+<body>
+<h>Welcome to account {{.Username}}</h><br>
+<h>Your email is {{.Email}}</h><br>
+<div class = "anns" >
+{{/*{{range .announcements}}*/}}
+{{/*    <h>{{.title}}</h><br>*/}}
+{{/*    <h>{{.email}}</h><br>*/}}
+{{/*    <h>{{.phone_number}}</h><br>*/}}
+{{/*{{end}}*/}}
+</div>
+    <div>
+
+{{/*        <input type="text" id="name">*/}}
+{{/*        <button onclick="sendData()">ShowData</button>*/}}
+        <button class="info">Reg As author</button><br>
+    </div>
+
+
+</body>
+</html>
