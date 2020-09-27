@@ -1,0 +1,245 @@
+body{
+    margin: 0;
+    display: flex;
+    height: 100vh;
+}
+
+::-webkit-scrollbar {
+	height: 10px;
+	width:  10px;
+    border-radius: 2px;
+    transition: 0.2s;
+}
+  
+::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+  
+::-webkit-scrollbar-thumb {
+	border-radius: 5px;
+    background: #b0b0b0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background-color: #919191;
+}
+
+p,h1,h2,h3,h4,h5,h6,span,a{
+    font-family: 'Quicksand', sans-serif;
+    color: #000000;
+    text-decoration: none;
+}
+
+h1,h2,h3,h4,h5,h6{
+    padding-left: 30px;
+    color:  #4268c5;
+}
+
+button{
+    cursor: pointer;
+}
+
+button,input{
+    font-family: 'Quicksand', sans-serif;
+    font-size: 16px;
+    border-radius: 6px;
+    padding: 1px 6px;
+}
+
+button:focus,input:focus{
+    border: 2px solid #000000;
+    border-radius: 6px;
+    color: black;
+}
+button:hover,input:hover{
+    color: #000000;
+}
+
+a:hover{
+    color: #4863da;
+}
+
+.leftcolumn{
+    width: 20%;
+    height: 100%;
+    position: relative;
+}
+
+.userblock{
+    width: 100%;
+    height: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.username{
+    text-align: center;
+}
+
+.midcolumnn{
+    width: 80%;
+    height: 100%;
+    position: relative;
+    border-left: 2px solid #acacac;
+    border-right: 2px solid #acacac;
+}
+
+.searchbounds{
+    height: 36px;
+    width: 70%;
+    margin: 10px auto 0 auto ;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+}
+
+.mainsearchbutton{
+    background-color: #ffffff;
+    border: 2px solid #747474;
+    margin: 0 8px 0 8px;
+    transition: 0.2s all ease-out;
+    color: #747474;
+    width: 80px;
+}
+
+.mainsearchfield{
+    width: -webkit-fill-available;
+    border: 2px solid #747474;
+    margin: 0 8px 0 8px;
+    transition: 0.2s all ease-out;
+    color: #747474;
+}
+
+.middlescroll{
+    width: 100%;
+    position: relative;
+    height: auto;
+}
+
+article.searchitem{
+    width: 95%;
+    height: 150px;
+    margin: 16px auto 0 auto;
+    display: flex;
+}
+
+.searchitemimage{
+    height: 100%;
+    width: 30%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border: 2px solid #6a6a6a;
+    position: relative;
+}
+
+.likeimage{
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    top: 5px;
+    right: 5px;
+    display: block;
+    background-image: url(heart.png);
+    background-size: 100%;
+    background-position: center;
+    transition: 0.2s all ease-out;
+    cursor: pointer;
+    border: none;
+    display: block;
+    background-color: transparent;
+    outline: none;
+}
+.likeimage:hover{
+    background-image: url(hearth.png);
+}
+.likeimage:focus{
+    border: none;
+}
+
+.searchitemtext{
+    margin-left: 10px;
+    width: 70%;
+    height: 100%;
+    position: relative;
+    border: 2px solid #6a6a6a;
+    background-color: #efefef;
+}
+
+ul.touristinfo{
+    list-style: none;
+    margin: 0 0 0 10px;
+    padding: 0;
+}
+ul.touristinfo p{
+    margin: 0;
+}
+
+.rightcolumn{
+    width: 20%;
+    height: 100%;
+    position: relative;
+}
+
+.userchart{
+    display: block;
+    width: 90%;
+    margin: 10px auto 0 auto;
+    max-height: 420px;
+    position: relative;
+    border-radius: 6px;
+    border: 2px solid black;
+}
+
+.chartname{
+    width: 100%;
+    height: 60px;
+}
+
+.chartname p{
+    text-align: center;
+    margin: 6px 0;
+}
+
+.chartbutton{
+    background-color: #ffffff;
+    border: 2px solid #747474;
+    transition: 0.2s all ease-out;
+    color: #747474;
+    display: block;
+    margin: auto;
+}
+
+.chartitems{
+    width: 100%;
+    position: relative;
+    max-height: 355px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+ul.chartitem{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: block;
+    width: 90%;
+    margin: 10px auto;
+    border: 2px solid black;
+    position: relative;
+}
+
+ul.chartitem p{
+    margin: 0;
+}
+
+.chartitemimage{
+    position: absolute;
+    height: 100%;
+    width: 40%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    right: 0;
+}
+

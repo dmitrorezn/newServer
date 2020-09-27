@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Dmytro Reznichenko</title>
+        <link rel="stylesheet" href="style.css">
+        <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
+        <script type="text/javascript">
+        function setelectedheart(elem){
+            if (elem.getAttribute("select") == "true"){
+                elem.setAttribute("select", "false");
+                elem.style.backgroundImage = "url(heart.png)";
+                removeFromChart(elem.id);
+            }
+            else{
+                elem.setAttribute("select", "true");
+                elem.style.backgroundImage = "url(hearth.png)";
+                addToChart(elem.id)
+            }
+        };
+        function addToChart(item){
+            let newitem = document.createElement('div');
+            newitem.id = item + "chart";
+            let ul = document.createElement('ul');
+            ul.className = "chartitem";
+            let titleli = document.createElement('li');
+            let nameli = document.createElement('li');
+            let dateli = document.createElement('li');
+
+            let imagediv = document.createElement('div');
+            imagediv.className = "chartitemimage";
+            imagediv.style.backgroundImage = document.getElementById(item + "image").style.backgroundImage;
+
+            titleli.innerHTML = "<p>" + item + "</p>";
+            nameli.innerHTML = "<p>Name</p>";
+            dateli.innerHTML = "<p>Date</p>";
+
+            ul.append(imagediv);
+            ul.append(titleli);
+            ul.append(nameli);
+            ul.append(dateli);
+
+            newitem.append(ul);
+
+            document.getElementById("chartitems").append(newitem);
+        };
+        function removeFromChart(item){
+            let it = document.getElementById(item + "chart");
+            it.parentNode.removeChild(it);
+        };
+        </script>
+    </head>
+    <body>
+        <div class="leftcolumn"> <!-- all activity type lists -->
+            <div class="userblock">
+                <div class="username" style="margin-top: 10px">
+                    <p style="margin: 0;">Dmytro Rezniczenko</p>
+                </div>
+            </div>
+        </div>
+        <div class="midcolumnn"> <!-- main menu activities list -->
+            <div class="searchbounds">
+                <button class="mainsearchbutton">Find</button>
+                <input type="text" value="Search..." class="mainsearchfield">
+            </div>
+            <div class="middlescroll">
+                <article id="first" class="searchitem">
+                    <div id="Igorimage" class="searchitemimage" style="background-image:url(800x_kraievid.jpg);">
+                        <button class="likeimage" onclick="setelectedheart(this)" id="Igor"></button>
+                    </div>
+                    <div class="searchitemtext">
+                        <h2>Igor pidor</h2>
+                        <ul class="touristinfo">
+                            <li><p>Phone number: +380 99 647 04 45</p></li>
+                            <li><p>Email: keklolarbidol@gmail.com</p></li>
+                            <li><p>Start dates: 2 march, 3 march</p></li>
+                        </ul>
+                    </div>
+                </article>
+                <article id="second" class="searchitem">
+                    <div id="Scotlandimage" class="searchitemimage" style="background-image:url(photo-1506744038136-46273834b3fb.jpg);">
+                        <button class="likeimage" onclick="setelectedheart(this)" id="Scotland"></button>
+                    </div>
+                    <div class="searchitemtext">
+                        <h2>Scotland</h2>
+                        <ul class="touristinfo">
+                            <li><p>Phone number: +48 732 233 423</p></li>
+                            <li><p>Email: lolkekcheburek@gmail.com</p></li>
+                            <li><p>Start dates: 6 march, 9 april</p></li>
+                        </ul>
+                    </div>
+                </article>
+            </div>
+        </div>
+        <div class="rightcolumn"> <!-- user selected items -->
+            <div class="userchart">
+                <div class="chartname">
+                    <p>User's chart</p>
+                    <button class="chartbutton">See all</button>
+                </div>
+                <div class="chartitems" id="chartitems">
+
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

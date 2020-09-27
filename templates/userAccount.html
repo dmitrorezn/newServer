@@ -14,20 +14,25 @@
         function moreInfo(ids){
             alert(ids)
             var data = {
-                id: ids ,
+                "id": ids.toString() ,
             }
-            console.log(data)
+            alert(data.id)
             $.ajax({
                 url: "/auth/announcementinfo",
                 method: "POST",
                 data : JSON.stringify(data),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success : function(data) {
-                    alert(data.id)
+                success: function() {
+                    // $('#content').html().text().value = ""
+                    $(document).ready(function() {
+                        $('#content').load('/user/anninfo', function () {
+                            alert("loaded");
+                        });
+                    });
                 },
-                error:function(data) {
-                    alert(data.id)
+                error:function() {
+                    alert("err load anninfo.html")
                 },
             })
         };
@@ -45,7 +50,7 @@
                             +"<h>Activity:         </h>"+data[k].activity.name+"<br>"
                             +"<h>Q&A Email:        </h>"+data[k].email+"<br>"
                             +"<h>Start Dates:      </h>"+data[k].start_dates + "<br>"
-                            +"<input type='button' value='More Info' class ='info' onclick=moreInfo('"+id+"')></div>");
+                            +"<input type='button' value='More Info' class ='info' id='"+id+"' onclick=moreInfo('"+id+"')></div>");
                     });
                     // $('.info').on('click', function() {
                     //     alert("info cliced")
@@ -74,7 +79,7 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success : function(data) {
-                    $('#brd').append("<div>"+ data.name +"</div>");
+                    $('.anns').append("<div>"+ data.name +"</div>");
                 },
             });
             console.log(data)
@@ -99,6 +104,7 @@
 <body>
 <h>Welcome to account {{.Username}}</h><br>
 <h>Your email is {{.Email}}</h><br>
+<div id="content">
 <div class = "anns" >
 {{/*{{range .announcements}}*/}}
 {{/*    <h>{{.title}}</h><br>*/}}
@@ -108,11 +114,11 @@
 </div>
     <div>
 
-{{/*        <input type="text" id="name">*/}}
-{{/*        <button onclick="sendData()">ShowData</button>*/}}
+        <input type="text" id="name">
+        <button onclick="sendData()">ShowData</button>
         <button class="info">Reg As author</button><br>
     </div>
 
-
+</div>
 </body>
 </html>

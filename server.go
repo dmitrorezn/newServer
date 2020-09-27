@@ -83,7 +83,8 @@ func RouterGroupsInit(router *gin.Engine) error{
 	user := router.Group("/user")
 	{
 		user.Use(CheckUserTokenValidation)
-
+		user.GET("/anninfo",AnnInfoHtml)
+		user.POST("/anninfo",AnnInfoHtml)
 		user.GET("/account",Account)
 		user.GET("/trash",Trash)
 		user.GET("/announcements",Announcements)
@@ -113,6 +114,27 @@ func SignForm(c *gin.Context)  {
 	c.HTML(http.StatusOK, "signin.html", nil)
 }
 
+func AnnInfoHtml(c *gin.Context)  {
+
+	//var selector map[string]interface{}
+	//curAnnId,err := c.Cookie("cur_ann_id")
+	//if err != nil{
+	//	fmt.Println("Account->no cookie ",err.Error())
+	//	c.String(400,"Account->no cookie ",err.Error())
+	//	return
+	//}
+	//selector["_idstr"] = curAnnId
+	//announcements, err := session.ReadAnnouncements(selector)
+	//if err != nil || len(announcements)>1{
+	//	fmt.Println("ReadAnnouncements-> err ",err.Error())
+	//	c.String(400,"ReadAnnouncements-> err ",err.Error())
+	//}
+	//fmt.Println(announcements[0])
+	////announcement := announcements[0]
+	c.HTML(http.StatusOK,"anninfo.html",nil)
+	return
+}
+
 func AuthorPage(c *gin.Context)  {
 	c.HTML(http.StatusOK, "author.html", nil)
 }
@@ -132,7 +154,12 @@ func AdminPage(c *gin.Context)  {
 
 func Show(c *gin.Context)  {
 	var data interface{}
-	c.BindJSON(&data)
+	err := c.BindJSON(&data)
+	if err != nil{
+		fmt.Println(err.Error())
+		c.String(400,err.Error())
+		return
+	}
 	c.JSON(200, data)
 	fmt.Println("DATA",data)
 }
@@ -336,28 +363,17 @@ func AddAnnouncement(c *gin.Context)  {
 }
 func AnnouncementInfo(c *gin.Context)  {
 	fmt.Println("info")
-	idData := struct {
-		id string `json:"id"`
-	}{}
+	idData := make(map[string]string)
     err := c.BindJSON(&idData)
     if err !=nil{
     	fmt.Println(err.Error())
     	c.String(400,err.Error())
 		return
 	}
-    fmt.Println(idData.id)
-    selector := make(map[string]interface{})
-    selector["_idstr"]=idData.id
-    data,err := session.ReadAnnouncements(selector)
-    if err !=nil || data == nil || len(data) < 1{
-    	fmt.Println(err.Error())
-    	c.String(400,err.Error())
-		return
-	}else {
-		fmt.Println(data[0])
-		c.HTML(200,"anninfo.html",data[0])
-		return
-	}
+    id := idData["id"]
+    fmt.Println(id)
+	c.SetCookie("cur_ann_id", id, 3600, "/", "localhost", false, false)
+	return
 }
 func AddComment(c *gin.Context)  {
      var comment classes.Comment
@@ -400,7 +416,7 @@ func AddToOrder(c *gin.Context)  {
 	}
 	actList := order.ActivityList
 	//actList = append(actList,act)
-fmt.Println(actList)
+	fmt.Println(actList)
 }
 
 
