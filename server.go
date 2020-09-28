@@ -2,7 +2,7 @@ package main
 
 import (
 	"ProjectMongoClient"
-	classes "activities"
+	classes "github.com/dmitrorezn/classes"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -18,6 +18,8 @@ import (
 )
 
 var session *ProjectMongoClient.DBSession
+
+
 
 func StartDB() error  {
 	var err error
@@ -55,15 +57,20 @@ func RouterGroupsInit(router *gin.Engine) error{
 	//router.LoadHTMLGlob("./js_codes/*")
 
 	//router.LoadHTMLGlob("./css_styles/*")
-	router.LoadHTMLGlob("./templates/*")
-	router.Static("./style","C:/Users/dmitr/go/src/newServer/css_style")
+	router.LoadHTMLGlob("templ/*")
+	router.Static("/auth/css","./templ")
+
 	//router.Static("./scripts","C:/Users/dmitr/go/src/newServer/js_codes")
 	router.Use(cors.Default())
 	data := router.Group("/data")
 	{
+		data.Use(CheckUserTokenValidation)
 		data.POST("/show", Show)
 		data.GET("/announcements", Announcements)
 		data.POST("/announcements", Announcements)
+		data.GET("/activities",OrderActivities)
+		data.POST("/activities",OrderActivities)
+
 	}
 	auth := router.Group("/auth")
 	{
@@ -115,23 +122,24 @@ func SignForm(c *gin.Context)  {
 }
 
 func AnnInfoHtml(c *gin.Context)  {
-
-	//var selector map[string]interface{}
-	//curAnnId,err := c.Cookie("cur_ann_id")
-	//if err != nil{
-	//	fmt.Println("Account->no cookie ",err.Error())
-	//	c.String(400,"Account->no cookie ",err.Error())
-	//	return
-	//}
-	//selector["_idstr"] = curAnnId
-	//announcements, err := session.ReadAnnouncements(selector)
-	//if err != nil || len(announcements)>1{
-	//	fmt.Println("ReadAnnouncements-> err ",err.Error())
-	//	c.String(400,"ReadAnnouncements-> err ",err.Error())
-	//}
-	//fmt.Println(announcements[0])
-	////announcement := announcements[0]
-	c.HTML(http.StatusOK,"anninfo.html",nil)
+	fmt.Println("anninfo.html")
+	var selector map[string]interface{}
+	curAnnId,err := c.Cookie("cur_ann_id")
+	if err != nil {
+		fmt.Println("Account->no cookie ",err.Error())
+		c.String(400,"Account->no cookie ",err.Error())
+		return
+	}
+	c.SetCookie("cur_ann_id", "", -1, "/", "localhost", false, false)
+	selector["_idstr"] = curAnnId
+	announcements, err := session.ReadAnnouncements(selector)
+	if err != nil || len(announcements)>1 {
+		fmt.Println("ReadAnnouncements-> err ",err.Error())
+		c.String(400,"ReadAnnouncements-> err ",err.Error())
+	}
+	fmt.Println(announcements[0])
+	announcement := announcements[0]
+	c.HTML(http.StatusOK,"anninfo.html",announcement)
 	return
 }
 
@@ -146,8 +154,10 @@ func Account(c *gin.Context)  {
     	c.String(400,err.Error())
 		return
 	}
-	c.HTML(http.StatusOK, "account.html", announcements)
+	fmt.Println(c.Cookie("login"))
+	c.HTML(http.StatusOK, "index.html", announcements)
 }
+
 func AdminPage(c *gin.Context)  {
 	c.HTML(http.StatusOK, "adminpage.html", nil)
 }
@@ -247,11 +257,10 @@ func SignIn(context *gin.Context) {
 			context.SetCookie("login", user.Username, 5*60, "/", "localhost", false, false)
 			context.SetCookie("status", user.Status, 5*60, "/", "localhost", false, false)
 			//return HTML
+
 			if user.Status == "user"{
-			context.HTML(http.StatusOK, "userAccount.html", bson.M{
-				"Username":user.Username,
-				"Email":user.Email,
-			})
+				Account(context)
+
 				return
 			}
 			if user.Status == "author"{
@@ -314,6 +323,29 @@ func Announcements(c *gin.Context)  {
 
 }
 
+func OrderActivities(c *gin.Context)  {
+	var selector = make(map[string]interface{})
+	//var announcements  []classes.Announcement
+	//var err error
+	login, err := c.Cookie("login")
+	if err != nil{
+		fmt.Println(err.Error())
+		c.String(400,err.Error())
+		return
+	}
+	selector["user_login"] = login
+	order, err := session.ReadOrder(selector)
+	if err != nil {
+		fmt.Println(err.Error())
+		c.String(400, err.Error())
+		return
+	}
+	out,_ :=json.MarshalIndent(order.ActivityList,"  ","   ")
+	fmt.Println(string(out))
+	c.JSON(200,order.ActivityList)
+
+}
+
 func AddAnnouncement(c *gin.Context)  {
      var data map[string]string
      err := c.BindJSON(&data)
@@ -367,11 +399,15 @@ func AnnouncementInfo(c *gin.Context)  {
     err := c.BindJSON(&idData)
     if err !=nil{
     	fmt.Println(err.Error())
-    	c.String(400,err.Error())
+    	//c.String(400,err.Error())
 		return
 	}
-    id := idData["id"]
+    id := idData["idstr"]
     fmt.Println(id)
+    _, err = c.Cookie("cur_ann_id")
+    if err == nil{
+		c.SetCookie("cur_ann_id", "", -1, "/", "localhost", false, false)
+	}
 	c.SetCookie("cur_ann_id", id, 3600, "/", "localhost", false, false)
 	return
 }
@@ -394,6 +430,7 @@ func AddComment(c *gin.Context)  {
 
 func AddToOrder(c *gin.Context)  {
 	selector := make(map[string]interface{})
+	change := make(map[string]interface{})
 	var act classes.Activity
 	login,err := c.Cookie("login")
 	if err != nil{
@@ -414,9 +451,17 @@ func AddToOrder(c *gin.Context)  {
 		c.String(400,err.Error())
 		return
 	}
-	actList := order.ActivityList
-	//actList = append(actList,act)
-	fmt.Println(actList)
+	acts := order.ActivityList
+	acts = append(acts,act)
+	change["$set"]=bson.M{
+		"activity_list": acts,
+	}
+	err = session.Update(selector,change,false,"orders")
+	if err != nil{
+		fmt.Println("Update -> err ",err.Error())
+		c.String(400,"Update -> err ",err.Error())
+	}
+	fmt.Println("added activity")
 }
 
 

@@ -3,9 +3,44 @@
     <head>
         <meta charset="utf-8">
         <title>Dmytro Reznichenko</title>
-        <link rel="stylesheet" href="style.css">
-        <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="./css/style.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+{{/*        <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">*/}}
         <script type="text/javascript">
+            $(document).ready(function (){
+                $.get( "/data/announcements", function(data) {
+                    $('.anns').empty()
+                    $.each(data, function(k)  {
+                        id = data[k].idstr
+                        $(".middlescroll").append("<article class='searchitem'>" +
+                            "<div class='searchitemimage'>"+
+                            "<button class='likeimage' style='background-color:beige;' onclick='setelectedheart(this)' id='"+data[k].announsidstr+"'></button>" +
+                            "</div>" +
+                            "<div class='searchitemtext'><h2>"+data[k].title+"</h2>" +
+                            "<ul class='touristinfo'>" +
+                            "<li><p>Phone number: "+data[k].phone_number+"</p></li>" +
+                            "<li><p>Email: "+data[k].email+"</p></li>" +
+                            "<li><p>Start dates: "+data[k].start_dates+"</p></li>" +
+                            "</ul></div>" +
+                            "</article>")
+                    });
+                    console.log(data);
+                });
+                $.get( "/data/activities", function(data) {
+                    $('.anns').empty()
+                    $.each(data, function(k)  {
+                        id = data[k].idstr
+                        $("#chartitems").append("<div id="+id+">" +
+                            "<ul class='chartitem' >" +
+                            "<li><div class ='chartitemimage'></div></li>"+
+                            "<li><p>"+data[k].name+"</p></li>" +
+                            "<li><p>"+data[k].type+"</p></li>" +
+                            "<li><p>"+data[k].start_date+"</p></li>"+
+                            "</ul>")
+                    });
+                    console.log(data);
+                });
+            })
         function setelectedheart(elem){
             if (elem.getAttribute("select") == "true"){
                 elem.setAttribute("select", "false");
@@ -61,35 +96,10 @@
         <div class="midcolumnn"> <!-- main menu activities list -->
             <div class="searchbounds">
                 <button class="mainsearchbutton">Find</button>
-                <input type="text" value="Search..." class="mainsearchfield">
+                <input type="text" class="mainsearchfield">
             </div>
             <div class="middlescroll">
-                <article id="first" class="searchitem">
-                    <div id="Igorimage" class="searchitemimage" style="background-image:url(800x_kraievid.jpg);">
-                        <button class="likeimage" onclick="setelectedheart(this)" id="Igor"></button>
-                    </div>
-                    <div class="searchitemtext">
-                        <h2>Igor pidor</h2>
-                        <ul class="touristinfo">
-                            <li><p>Phone number: +380 99 647 04 45</p></li>
-                            <li><p>Email: keklolarbidol@gmail.com</p></li>
-                            <li><p>Start dates: 2 march, 3 march</p></li>
-                        </ul>
-                    </div>
-                </article>
-                <article id="second" class="searchitem">
-                    <div id="Scotlandimage" class="searchitemimage" style="background-image:url(photo-1506744038136-46273834b3fb.jpg);">
-                        <button class="likeimage" onclick="setelectedheart(this)" id="Scotland"></button>
-                    </div>
-                    <div class="searchitemtext">
-                        <h2>Scotland</h2>
-                        <ul class="touristinfo">
-                            <li><p>Phone number: +48 732 233 423</p></li>
-                            <li><p>Email: lolkekcheburek@gmail.com</p></li>
-                            <li><p>Start dates: 6 march, 9 april</p></li>
-                        </ul>
-                    </div>
-                </article>
+
             </div>
         </div>
         <div class="rightcolumn"> <!-- user selected items -->

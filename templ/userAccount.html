@@ -11,10 +11,28 @@
     <meta charset = "utf-8">
 
     <script>
+        $(document).ready(function (){
+            let cookies = document.cookie
+            let el
+            let i
+            let login = cookies.lastIndexOf("login")
+            alert(login)
+            let values = cookies.split(";")//[1].split("=")[1].toString()
+             values.forEach(function (item,index,array){
+                 el = item.split("=")
+                 i = el[0]
+                    if (i === 'login'){
+                        alert(el[1])
+                        login = login + el[1]
+                    }
+                })
+            $("#username").append("<h>Welcome to account "+login.toString()+"</h>")
+        });
+
         function moreInfo(ids){
             alert(ids)
             var data = {
-                "id": ids.toString() ,
+                "idstr": ids.toString() ,
             }
             alert(data.id)
             $.ajax({
@@ -24,9 +42,8 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function() {
-                    // $('#content').html().text().value = ""
                     $(document).ready(function() {
-                        $('#content').load('/user/anninfo', function () {
+                        $('#content').load("/user/anninfo", function () {
                             alert("loaded");
                         });
                     });
@@ -102,8 +119,8 @@
     </script>
 </head>
 <body>
-<h>Welcome to account {{.Username}}</h><br>
-<h>Your email is {{.Email}}</h><br>
+<div id="username"></div><br>
+{{/*<h>Your email is {{.Email}}</h><br>*/}}
 <div id="content">
 <div class = "anns" >
 {{/*{{range .announcements}}*/}}
