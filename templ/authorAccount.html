@@ -46,7 +46,6 @@
             }
         }
         function ShowAuthorAnnoncements(data) {
-            $('.anns').empty()
             $.each(data, function(k)  {
                 id = data[k].idstr
                 let title = data[k].title.toString()
@@ -136,9 +135,8 @@
 
             $.get( "/authordata/userlogin", function(data) {
                 $("#user_name").last().html("Author: "+data.toString());
-
             })
-            $.get( "/authordata/announcements", function (data){});
+            $.get( "/authordata/announcements", function (data){ShowAuthorAnnoncements(data)});
         })
         function sendImage(e){
             let fd = new FormData();
