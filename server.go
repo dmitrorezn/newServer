@@ -2,7 +2,6 @@ package main
 
 import (
 	"ProjectMongoClient"
-	"encoding/json"
 	"errors"
 	"fmt"
 	classes "github.com/dmitrorezn/classes"
@@ -207,7 +206,7 @@ func AnnInfoHtml(c *gin.Context) {
 	c.SetCookie("cur_ann_id", "", -1, "/", "localhost", false, false)
 	selector["_idstr"] = curAnnId
 	announcements, err := session.ReadAnnouncements(selector)
-	if err != nil || len(announcements) > 1 {
+	if err != nil  {
 		c.String(400, "ReadAnnouncements-> err ", err.Error())
 	}
 	announcement := announcements[0]
@@ -275,7 +274,6 @@ func CheckUserTokenValidation(c *gin.Context) {
 		c.String(400, "wrong status")
 		return
 	}
-	return
 }
 
 func CheckAuthorTokenValidation(c *gin.Context) {
@@ -310,7 +308,6 @@ func CheckAuthorTokenValidation(c *gin.Context) {
 		c.String(400, "wrong status")
 		return
 	}
-	return
 }
 func CheckAdminTokenValidation(c *gin.Context) {
 	token, err := c.Cookie("token")
@@ -344,7 +341,6 @@ func CheckAdminTokenValidation(c *gin.Context) {
 		c.String(400, "wrong status")
 		return
 	}
-	return
 }
 
 func SignUp(context *gin.Context) {
@@ -469,11 +465,7 @@ func Announcements(c *gin.Context) {
 			c.String(400, err.Error())
 			return
 		}
-		fmt.Println("admin")
 	}
-	out, _ := json.MarshalIndent(announcements, "  ", "   ")
-	fmt.Println(announcements[0].Title)
-	fmt.Println(string(out))
 	c.JSON(http.StatusOK, announcements)
 	return
 }
@@ -535,21 +527,25 @@ func AddAnnouncement(c *gin.Context) {
 	err := c.BindJSON(&data)
 	if err != nil {
 		fmt.Println(err.Error())
+		c.String(400, err.Error())
 		return
 	}
 	login, err := c.Cookie("login")
 	if err != nil {
 		fmt.Println(err.Error())
+		c.String(400, err.Error())
 		return
 	}
 	price, err := strconv.ParseFloat(data["price"], 64)
 	if err != nil {
 		fmt.Println(err.Error())
+		c.String(400, err.Error())
 		return
 	}
 	title, ok := data["title"]
 	if !ok {
 		fmt.Println("err no title")
+		c.String(400, "err no title")
 		return
 	}
 	startDates := strings.Split(data["start_dates"], " ")
@@ -580,8 +576,7 @@ func AddAnnouncement(c *gin.Context) {
 			Description: data["description"],
 		},
 	}
-	impath := string(ids) + "_image"
-	c.SetCookie("annImPath", impath, 3600, "/", "localhost", false, false)
+	c.SetCookie("annImPath", announcement.ImagePath, 3600, "/", "localhost", false, false)
 	err = session.Insert(announcement, "announcements")
 	if err != nil {
 		fmt.Println(err.Error())
@@ -589,7 +584,6 @@ func AddAnnouncement(c *gin.Context) {
 		return
 	}
 	c.JSON(200, nil)
-	//fmt.Println(announcement)
 }
 
 func AddImage(c *gin.Context) {
@@ -605,19 +599,29 @@ func AddImage(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	defer src.Close()
-	dst, err := os.Create("./photos/" + imPath)
+
+	dst, err := os.Create("./photos/" + imPath+".jpg")
 	if err != nil {
 		c.String(400, err.Error())
 		return
 	}
-	defer dst.Close()
+
 	_, err = io.Copy(dst, src)
 	if err != nil {
 		c.String(400, "io.Copy()->"+err.Error())
 		return
 	}
-	c.JSON(200, nil)
+	err = src.Close()
+	if err != nil {
+		c.String(400, "src.Close()->" + err.Error())
+		return
+	}
+	err = dst.Close()
+	if err != nil {
+		c.String(400, "dst.Close()->" + err.Error())
+		return
+	}
+	c.JSON(200, map[string]string{"done":"image uploaded"})
 	return
 }
 
@@ -695,7 +699,11 @@ func Logout(c *gin.Context) {
 		c.String(400, err.Error())
 		return
 	}
-	TokenCache.Delete(login)
+	err = TokenCache.Delete(login)
+	if err != nil{
+		c.String(400, "Delete -> "+err.Error())
+		return
+	}
 	// Clear the cookie
 	c.SetCookie("token", "", -1, "", "", false, true)
 	c.SetCookie("login", "", -1, "", "", false, true)
@@ -714,6 +722,10 @@ func DeleteFromOrder(c *gin.Context) {
 	}
 	selector["user_login"] = login
 	order, err := session.ReadOrder(selector)
+	if err != nil{
+		c.String(400, "ReadOrder -> ",err.Error())
+		return
+	}
 	actList := order.ActivityList
 	var delId string
 	err = c.BindJSON(&delId)
