@@ -583,7 +583,7 @@ func AddAnnouncement(c *gin.Context) {
 		c.String(400, err.Error())
 		return
 	}
-	c.JSON(200, nil)
+	c.JSON(200, map[string]string{"info":"image uploaded"})
 }
 
 func AddImage(c *gin.Context) {
@@ -621,7 +621,7 @@ func AddImage(c *gin.Context) {
 		c.String(400, "dst.Close()->" + err.Error())
 		return
 	}
-	c.JSON(200, map[string]string{"done":"image uploaded"})
+	c.JSON(200, map[string]string{"info":"image uploaded"})
 	return
 }
 
